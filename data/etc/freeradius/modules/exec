@@ -1,0 +1,71 @@
+# -*- text -*-
+#
+#  $Id$
+
+#
+#  Execute external programs
+#
+#  This module is useful only for 'xlat'.  To use it,
+#  put 'exec' into the 'instantiate' section.  You can then
+#  do dynamic translation of attributes like:
+#
+#  Attribute-Name = `%{exec:/path/to/program args}`
+#
+#  The value of the attribute will be replaced with the output
+#  of the program which is executed.  Due to RADIUS protocol
+#  limitations, any output over 253 bytes will be ignored.
+#
+#  The RADIUS attributes from the user request will be placed
+#  into environment variables of the executed program, as
+#  described in "man unlang" and in doc/variables.txt
+#
+#  See also "echo" for more sample configuration.
+#
+# updated by WIBOON 2556-02-22
+exec {
+	wait = no
+	input_pairs = request
+	shell_escape = yes
+	output = none
+}
+exec my-log-account {
+     wait = no
+     program = "/bin/sh /etc/freeradius/log-radius-account.sh %l %{Packet-Src-IP-Address}"
+} 
+exec my-log-authen {
+     wait = no
+     program = "/bin/sh /etc/freeradius/log-radius-authen.sh %l %{Packet-Src-IP-Address}"
+}
+exec my-log-authen-preblacklist {
+     wait = no
+     program = "/bin/sh /etc/freeradius/log-radius-authen-preblacklist.sh %l %{Packet-Src-IP-Address}"
+}
+exec my-log-authen-blacklist {
+     wait = no
+     program = "/bin/sh /etc/freeradius/log-radius-authen-blacklist.sh %l %{Packet-Src-IP-Address}"
+}
+exec my-log-authen-notallow {
+     wait = no
+     program = "/bin/sh /etc/freeradius/log-radius-authen-notallow.sh %l %{Packet-Src-IP-Address}"
+}
+exec my-log-authen-fail {
+     wait = no
+     program = "/bin/sh /etc/freeradius/log-radius-authen-fail.sh %l %{Packet-Src-IP-Address}"
+}
+exec my-log-authen-pass {
+     wait = no
+     program = "/bin/sh /etc/freeradius/log-radius-authen-pass.sh %l %{Packet-Src-IP-Address}"
+}
+exec my-auth {
+        program = "/bin/sh /etc/freeradius/my-authen.sh %l %{Packet-Src-IP-Address}"
+        wait = yes
+        input_pairs = request
+        packet_type = Access-Accept
+}
+
+exec imap-auth {
+        program = "/bin/sh /etc/freeradius/imap-authen.sh %{Packet-Dst-IP-Address} %{Packet-Src-IP-Address}"
+	wait = yes
+	input_pairs = request
+}
+
